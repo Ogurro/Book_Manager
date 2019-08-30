@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'rest_server.wsgi.application'
 DATABASES = {
     'default': {
         'HOST': '127.0.0.1',
-        'NAME': 'rest_server',
+        'NAME': 'rest_server_db',
         'ENGINE': 'django.db.backends.postgresql',
         'USER': 'postgres',
         'PASSWORD': 'coderslab',
