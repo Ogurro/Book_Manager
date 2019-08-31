@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     loadBooks();
 });
 
@@ -15,6 +14,84 @@ let genres = {
     '7': 'Kryminał, sensacja'
 };
 
+$('button.add-book').click(function () {
+    $(this).next().removeClass('d-none');
+    addBookClicked($(this).next());
+    $(this).addClass('d-none');
+    $(this).unbind()
+});
+
+function addBookClicked(element) {
+    let newTable = $('<table class="table mt-3 mb-3 new-book-table">');
+    newTable.append(
+        '<tr>' +
+            '<td>Author</td>' +
+            '<td><input name="author" type="text"></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td>Title</td>' +
+            '<td><input name="title" type="text"></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td>Isnb</td>' +
+            '<td><input name="isbn" type="text"></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td>Publisher</td>' +
+            '<td><input name="publisher" type="text"></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td>Genre</td>' +
+            '<td>'+ getGenreSelect() +'</td>'+
+        '</tr>');
+    let addNewBookBtn = $('<button class="btn btn-primary confirm-add-book">').text('Add New Book');
+    addNewBookBtn.click(function () {
+       confirmAddBook();
+    });
+    element.append([newTable, addNewBookBtn]);
+}
+
+function confirmAddBook() {
+    $.ajax({
+        url: mainUrl + 'book/',
+        data: getNewBookJson(),
+        type: 'POST',
+        dataType: 'json'
+    })
+        .done(function () {
+            console.log('added new book to db');
+            location.reload();
+        })
+        .fail(function (data) {
+            console.log('failed @ add new book');
+        })
+        .always(function () {
+            console.log('complete add new book')
+        })
+}
+
+function getNewBookJson() {
+    let data = {};
+    $.each($('table.new-book-table  input'), function () {
+        let name = $(this).attr('name');
+        let value = $(this).val();
+        data[name] = value;
+    });
+    data['genre'] = $('table.new-book-table select[name="genre"]').val();
+    return data
+}
+
+
+function getGenreSelect(num=1) {
+    let rv = '<select name="genre">\n';
+    $.each(genres, function (key, val) {
+        rv += '<option value="' + key + '" ';
+        if (key == num) rv += 'selected';
+        rv += '>' + val + '</option>\n';
+    });
+    rv += '</select>\n';
+    return rv
+}
 
 function loadBooks() {
     $.ajax(
@@ -145,16 +222,6 @@ function loadBookInfo(id, element) {
         return editButton
     }
 
-    function getGenreSelect(num) {
-        let rv = '<select name="genre">\n';
-        $.each(genres, function (key, val) {
-            rv += '<option value="' + key + '" ';
-            if (key == num) rv += 'selected';
-            rv += '>' + val + '</option>\n';
-        });
-        rv += '</select>\n';
-        return rv
-    }
 
     function editBook() {
         $('.delete-button').toggleClass('d-none');
@@ -232,7 +299,7 @@ function loadBookInfo(id, element) {
             data: {},
             type: "DELETE",
             dataType: "json",
-            success: function (data) {
+            success: function () {
                 console.log('delete book success');
                 $('tr[data-bookid="' + id + '"]').remove();
                 $('div[data-bookinfoid="' + id + '"]').remove();
