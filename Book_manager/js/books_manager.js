@@ -36,12 +36,12 @@ function booksSuccess(data) {
     );
     data.forEach(function (element) {
         let newRow = (
-            '<tr id="book'+element['id']+'" class="text-center">'+
+            '<tr data-bookid="' + element['id'] + '" class="text-center clickable">'+
                 '<td>' + element['title'] + '</td>' +
                 '<td>' + element['author'] + '</td>' +
             '</tr>'
         );
-        let emptyRow = $('<tr class="text-center d-none">');
+        let emptyRow = $('<tr data-bookinfoif="'+ element['id'] +'" class="text-center d-none book-info">');
         tableBody.append([newRow, emptyRow]);
     tableBody.append('</tbody>')
     });
@@ -60,7 +60,38 @@ function booksLoadingError() {
 }
 
 function addEventHandler() {
-    // TO DO
+    let clickableObject = $('.clickable');
+    clickableObject.click(function () {
+        $(this).toggleClass('table-success');
+        $(this).next().toggleClass('d-none');
+        loadBookInfo($(this).data('bookid'), $(this).next())
+    })
 }
 
+function loadBookInfo (id, element) {
+    if (element.children().length == 0) {
+        if (id > 0) {
+            $.ajax(
+                {
+                    url: "http://127.0.0.1:8000/book/" + id,
+                    data: {},
+                    type: "GET",
+                    dataType: "json",
+                    success: showBookInfoSuccess,
+                    error: function () {
+                        console.log("error @ loading specific book");
+                    },
+                    complete: function () {
+                        console.log('Completed loading specific book');
+                    }
+                })
+        }
+    }
+
+    function showBookInfoSuccess(data) {
+        console.log(element);
+        let newDiv = $('<div><table>');
+        element.append(newDiv)
+    }
+}
 
