@@ -3,6 +3,16 @@ $(document).ready(function () {
     loadBooks();
 })
 ;
+let genres = {
+    '1': 'Romans',
+    '2': 'Obyczajowa',
+    '3': 'Sci-fi i fantasy',
+    '4': 'Literatura faktu',
+    '5': 'Popularnonaukowa',
+    '6': 'Poradnik',
+    '7': 'Kryminał, sensacja'
+};
+
 
 function loadBooks() {
     $.ajax(
@@ -41,7 +51,7 @@ function booksSuccess(data) {
                 '<td>' + element['author'] + '</td>' +
             '</tr>'
         );
-        let emptyRow = $('<tr data-bookinfoif="'+ element['id'] +'" class="text-center d-none book-info">');
+        let emptyRow = $('<div data-bookinfoif="'+ element['id'] +'" class="container justify-content-center d-none book-info">');
         tableBody.append([newRow, emptyRow]);
     tableBody.append('</tbody>')
     });
@@ -89,9 +99,19 @@ function loadBookInfo (id, element) {
     }
 
     function showBookInfoSuccess(data) {
-        console.log(element);
-        let newDiv = $('<div><table>');
-        element.append(newDiv)
+        let newDiv = $('<table class="table table-hover d-block-flex">');
+        $.each(data, function (key, val){
+            if (key != 'id') {
+                let newRow = (
+                    '<tr class="text-center">' +
+                        '<td>' + key.charAt(0).toUpperCase()+key.slice(1) + '</td>' +
+                        '<td>'+ (key == 'genre' ? genres[val] : val) +'</td>' +
+                    '</tr>'
+                );
+                newDiv.append(newRow);
+            }
+        });
+        element.append(newDiv);
     }
 }
 
