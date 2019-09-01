@@ -185,6 +185,16 @@ function resetActionButtonsAndFields() {
     $('.delete-button').removeClass('d-none');
     $('.edit-button').removeClass('d-none');
     restoreFields();
+    restoreTables()
+}
+
+function restoreTables() {
+    $.each($('.table-warning'), function () {
+        $(this).toggleClass('table-secondary table-warning')
+    });
+    $.each($('.table-danger'), function () {
+        $(this).toggleClass('table-success table-danger')
+    });
 }
 
 function restoreFields() {
@@ -289,6 +299,9 @@ function loadBookInfo(id, element) {
         let cancelButton = $('<button class="btn btn-secondary mt-0 mb-3 mr-3 cancel-button">').text('Cancel');
         element.append(cancelButton);
         element.append(confirmButton);
+        cancelButton.siblings('table').toggleClass('table-secondary table-warning');
+        let dataToDeleteRow = cancelButton.parent().prev().toggleClass('table-success table-danger');
+        console.log(dataToDeleteRow);
         cancelButton.click(function () {
             resetActionButtonsAndFields();
         });
