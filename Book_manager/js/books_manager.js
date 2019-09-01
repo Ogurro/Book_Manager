@@ -14,41 +14,60 @@ let genres = {
     '7': 'Kryminał, sensacja'
 };
 
-$('button.add-book').click(function () {
-    $(this).next().removeClass('d-none');
-    addBookClicked($(this).next());
-    $(this).addClass('d-none');
-    $(this).unbind()
-});
+function createSectionAddBook() {
+    let bodyDiv = $('body > div');
+    let addBookButton = $('<button class="btn btn-secondary mt-3 add-book">').text('Add Book');
+    let newDiv = $('<div class="container d-none w-50">');
+    bodyDiv.prepend([addBookButton, newDiv]);
+    addBookButton.click(function () {
+        $(this).next().removeClass('d-none');
+        addBookClicked($(this).next());
+        $(this).addClass('d-none');
+    });
+}
 
 function addBookClicked(element) {
-    let newTable = $('<table class="table mt-3 mb-3 new-book-table">');
+    let newTable = $('<table class="table table-secondary mt-3 mb-0 new-book-table">');
     newTable.append(
-        '<tr>' +
-            '<td>Author</td>' +
-            '<td><input name="author" type="text"></td>' +
-        '</tr>' +
-        '<tr>' +
-            '<td>Title</td>' +
-            '<td><input name="title" type="text"></td>' +
-        '</tr>' +
-        '<tr>' +
-            '<td>Isnb</td>' +
-            '<td><input name="isbn" type="text"></td>' +
-        '</tr>' +
-        '<tr>' +
-            '<td>Publisher</td>' +
-            '<td><input name="publisher" type="text"></td>' +
-        '</tr>' +
-        '<tr>' +
-            '<td>Genre</td>' +
-            '<td>'+ getGenreSelect() +'</td>'+
-        '</tr>');
-    let addNewBookBtn = $('<button class="btn btn-primary confirm-add-book">').text('Add New Book');
+        '<thead class="thead-dark">' +
+            '<tr class="text-center">' +
+                '<th colspan="2">Add new book</thco>' +
+            '</tr>' +
+        '</teahd>' +
+        '<tbody>' +
+            '<tr>' +
+                '<th>Author</td>' +
+                '<td><input name="author" type="text"></td>' +
+            '</tr>' +
+            '<tr>' +
+                '<th>Title</td>' +
+                '<td><input name="title" type="text"></td>' +
+            '</tr>' +
+            '<tr>' +
+                '<th>Isnb</td>' +
+                '<td><input name="isbn" type="text"></td>' +
+            '</tr>' +
+            '<tr>' +
+                '<th>Publisher</td>' +
+                '<td><input name="publisher" type="text"></td>' +
+            '</tr>' +
+            '<tr>' +
+                '<th>Genre</th>' +
+                '<td>'+ getGenreSelect() +'</td>'+
+            '</tr>' +
+        '</tbody>');
+    let addNewBookBtn = $('<button class="btn btn-primary mt-0 mr-3 confirm-add-book">').text('Add New Book');
+    let addNewCancelBtn = $('<button class="btn btn-secondary mt-0 mr-3 cancel-add-book">').text('Cancel');
     addNewBookBtn.click(function () {
        confirmAddBook();
     });
-    element.append([newTable, addNewBookBtn]);
+    addNewCancelBtn.click(function(){
+        $('button.add-book').toggleClass('d-none');
+        $(this).prev().prev().remove();
+        $(this).prev().remove();
+        $(this).remove()
+    });
+    element.append([newTable, addNewBookBtn, addNewCancelBtn]);
 }
 
 function confirmAddBook() {
@@ -62,7 +81,7 @@ function confirmAddBook() {
             console.log('added new book to db');
             location.reload();
         })
-        .fail(function (data) {
+        .fail(function () {
             console.log('failed @ add new book');
         })
         .always(function () {
@@ -82,8 +101,9 @@ function getNewBookJson() {
 }
 
 
-function getGenreSelect(num=1) {
+function getGenreSelect(num=0) {
     let rv = '<select name="genre">\n';
+    if (num == 0) rv += '<option></option>';
     $.each(genres, function (key, val) {
         rv += '<option value="' + key + '" ';
         if (key == num) rv += 'selected';
@@ -100,7 +120,10 @@ function loadBooks() {
             data: {},
             type: 'GET',
             dataType: 'json',
-            success: booksSuccess,
+            success: function (data){
+                booksSuccess(data);
+                createSectionAddBook();
+            },
             error: function () {
                 console.log('error @ loading books');
                 booksLoadingError();
@@ -116,9 +139,9 @@ function booksSuccess(data) {
     let tableBody = $('#bookTable');
     tableBody.append(
         '<thead class="thead-dark">' +
-        '<tr class="text-center">' +
-        '<th>Books</th>' +
-        '</tr>' +
+            '<tr class="text-center">' +
+                '<th>Books</th>' +
+            '</tr>' +
         '</thead>' +
         '<tbody>'
     );
@@ -197,7 +220,7 @@ function loadBookInfo(id, element) {
     }
 
     function showBookInfoSuccess(data) {
-        let newTable = $('<table class="table table-hover flex mb-0">');
+        let newTable = $('<table class="table table-striped table-secondary table-borderless table-hover flex mb-0">');
         $.each(data, function (key, val) {
             if (key != 'id') {
                 let newRow = (
